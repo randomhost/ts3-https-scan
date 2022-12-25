@@ -2,18 +2,14 @@
 
 namespace randomhost\TeamSpeak3;
 
-use InvalidArgumentException;
-use TeamSpeak3;
-use TeamSpeak3_Node_Channel;
-use TeamSpeak3_Node_Server;
-
 /**
  * Scans a TeamSpeak 3 server for insecure HTTP links.
  *
  * @author    Ch'Ih-Yu <chi-yu@web.de>
- * @copyright 2018 random-host.com
- * @license   http://www.debian.org/misc/bsd.license  BSD License (3 Clause)
- * @link      http://composer.random-host.com
+ * @copyright 2022 Random-Host.tv
+ * @license   https://opensource.org/licenses/BSD-3-Clause BSD License (3 Clause)
+ *
+ * @see https://github.random-host.tv
  */
 class Scan
 {
@@ -36,21 +32,21 @@ class Scan
      * @var array
      */
     protected $longOptions
-        = array(
+        = [
             'help',
             'user:',
             'password:',
             'host:',
             'queryport:',
             'serverport:',
-        );
+        ];
 
     /**
      * Array of option / argument pairs.
      *
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * Array of required option / argument pairs.
@@ -58,11 +54,11 @@ class Scan
      * @var array
      */
     protected $requiredOptions
-        = array(
+        = [
             'user',
             'password',
             'host',
-        );
+        ];
 
     /**
      * Server properties to be scanned.
@@ -70,31 +66,27 @@ class Scan
      * @var string[]
      */
     protected $serverProperties
-        = array(
+        = [
             'virtualserver_hostbutton_url' => 'Host Button Link URL',
             'virtualserver_hostbutton_gfx_url' => 'Host Button Image URL',
             'virtualserver_hostbanner_url' => 'Host Banner Link URL',
             'virtualserver_hostbanner_gfx_url' => 'Host Banner Image URL',
             'virtualserver_welcomemessage' => 'Welcome Message',
             'virtualserver_hostmessage' => 'Host Message',
-        );
+        ];
 
     /**
      * Returns available short options.
-     *
-     * @return string
      */
-    public function getShortOptions()
+    public function getShortOptions(): string
     {
-        return (string)$this->shortOptions;
+        return $this->shortOptions;
     }
 
     /**
      * Returns available long options.
-     *
-     * @return array
      */
-    public function getLongOptions()
+    public function getLongOptions(): array
     {
         return $this->longOptions;
     }
@@ -103,10 +95,8 @@ class Scan
      * Sets command line options as returned by getopt().
      *
      * @param array $options Command line options.
-     *
-     * @return $this
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): self
     {
         $this->options = $options;
 
@@ -116,39 +106,40 @@ class Scan
     /**
      * Performs the scan.
      *
-     * @return $this
+     * @throws \Exception
      */
-    public function run()
+    public function run(): self
     {
         return $this
             ->preRun()
-            ->scan();
+            ->scan()
+        ;
     }
 
     /**
      * Scans the TeamSpeak 3 server for insecure links.
      *
-     * @return $this
+     * @throws \Exception
      */
-    protected function scan()
+    protected function scan(): self
     {
         $options = $this->options;
 
         echo <<<EOT
-Scanning:
- - Host: {$options['host']}
- - Port: {$options['serverport']}
- - Query Port: {$options['queryport']}
- - User: {$options['user']}
- - Password: ******
+            Scanning:
+             - Host: {$options['host']}
+             - Port: {$options['serverport']}
+             - Query Port: {$options['queryport']}
+             - User: {$options['user']}
+             - Password: ******
 
 
-EOT;
+            EOT;
 
         /**
          * Connect to TeamSpeak 3 Server.
          *
-         * @var $server TeamSpeak3_Node_Server
+         * @var \TeamSpeak3_Node_Server $server
          */
         $uri = sprintf(
             'serverquery://%1$s:%2$s@%3$s:%4$s/?server_port=%5$s',
@@ -158,12 +149,12 @@ EOT;
             $options['queryport'],
             $options['serverport']
         );
-        $server = TeamSpeak3::factory($uri);
+        $server = \TeamSpeak3::factory($uri);
 
         /**
-         * Scan server properties
+         * Scan server properties.
          */
-        $affectedServerProperties = array();
+        $affectedServerProperties = [];
         foreach ($this->serverProperties as $propertyKey => $propertyName) {
             if (false !== strpos($server[$propertyKey], 'http://')) {
                 $affectedServerProperties[] = $propertyName;
@@ -173,9 +164,9 @@ EOT;
         /**
          * Scan channels.
          *
-         * @var $channel TeamSpeak3_Node_Channel
+         * @var \TeamSpeak3_Node_Channel $channel
          */
-        $affectedChannels = array();
+        $affectedChannels = [];
         foreach ($server->channelList() as $channel) {
             if (false !== strpos($channel->channel_description, 'http://')) {
                 $affectedChannels[] = $channel->channel_name;
@@ -194,7 +185,7 @@ EOT;
         if (!empty($affectedServerProperties)) {
             echo 'The following server properties contain insecure HTTP links:'.PHP_EOL;
             foreach ($affectedServerProperties as $affectedServerProperty) {
-                echo " - ${affectedServerProperty}".PHP_EOL;
+                echo " - {$affectedServerProperty}".PHP_EOL;
             }
             echo PHP_EOL;
         }
@@ -202,7 +193,7 @@ EOT;
         if (!empty($affectedChannels)) {
             echo 'The following channels contain insecure HTTP links:'.PHP_EOL;
             foreach ($affectedChannels as $affectedChannel) {
-                echo " - ${affectedChannel}".PHP_EOL;
+                echo " - {$affectedChannel}".PHP_EOL;
             }
             echo PHP_EOL;
         }
@@ -214,10 +205,8 @@ EOT;
 
     /**
      * Reads command line options and performs pre-run tasks.
-     *
-     * @return $this
      */
-    protected function preRun()
+    protected function preRun(): self
     {
         if (array_key_exists('help', $this->options) || array_key_exists('h', $this->options)) {
             $this->displayHelp();
@@ -231,18 +220,16 @@ EOT;
     /**
      * Checks if all required parameters are set.
      *
-     * @return $this
-     *
-     * @throws InvalidArgumentException Thrown in case of missing required arguments.
+     * @throws \InvalidArgumentException Thrown in case of missing required arguments.
      */
-    protected function checkRequiredParameters()
+    protected function checkRequiredParameters(): self
     {
         $missing = array_diff(
             $this->requiredOptions,
             array_keys($this->options)
         );
         if (!empty($missing)) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Missing required parameters: %s',
                     implode(', ', $missing)
@@ -266,15 +253,16 @@ EOT;
      */
     protected function displayHelp()
     {
-        echo <<<EOT
-Scans a TeamSpeak 3 server for insecure HTTP links.
+        echo <<<'EOT'
+            Scans a TeamSpeak 3 server for insecure HTTP links.
 
---user       Query account login name
---password   Query account password
---host       Host name
---queryport  Optional: Query port (default: 10011)
---serverport Optional: Voice port (default: 9987)
-EOT;
+            --user       Query account login name
+            --password   Query account password
+            --host       Host name
+            --queryport  Optional: Query port (default: 10011)
+            --serverport Optional: Voice port (default: 9987)
+            EOT;
+
         exit;
     }
 }

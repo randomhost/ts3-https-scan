@@ -1,8 +1,18 @@
-randomhost/ts3-https-scan
-=========================
+# randomhost/ts3-https-scan
 
-This package connects to a TeamSpeak 3 server via the query interface and scans various server
-properties as well as channel descriptions for insecure HTTP links.
+<!-- TOC -->
+* [1. Purpose](#1-purpose)
+* [2. Requirements](#2-requirements)
+* [3. Installation](#3-installation)
+* [4. Usage](#4-usage)
+* [5. Troubleshooting](#5-troubleshooting)
+* [6. License](#6-license)
+<!-- TOC -->
+
+## 1. Purpose
+
+This package connects to a TeamSpeak 3 server via the query interface and scans
+various server properties as well as channel descriptions for insecure HTTP links.
 
 The result is printed to stdout.
 
@@ -17,20 +27,17 @@ The result is printed to stdout.
 | `virtualserver_hostbutton_url`     | Host Button Link URL  |
 | `virtualserver_hostbutton_gfx_url` | Host Button Image URL |
 
-Requirements
-------------
+## 2. Requirements
 
-* [Composer][0] is required to install dependencies
+* [Composer][1] is required to install dependencies
 * Valid ServerQuery login credentials
 * Custom anti-flood settings or whitelisted IP address
 
-Installation
-------------
+## 3. Installation
 
 * Run `composer install` in the root directory of the package.
 
-Usage
------
+## 4. Usage
 
 Run `php src/bin/scan.php` with option  `--help` or `-h` for available options.
 
@@ -71,30 +78,32 @@ The following channels contain insecure HTTP links:
 Done.
 ```
 
-Troubleshooting
----------------
+## 5. Troubleshooting
 
-The TeamSpeak 3 ServerQuery interface features a built-in flood protection against "command spamming"
-which comes with rather strict default settings.
+The TeamSpeak 3 ServerQuery interface features a built-in flood protection
+against "command spamming" which comes with rather strict default settings.
 
-If you receive an error message like `flood ban`, this means that the IP address of the machine you
-executed the script on has been temporarily banned from accessing the ServerQuery interface.
+If you receive an error message like `flood ban`, this means that the IP address
+of the machine you executed the script on has been temporarily banned from
+accessing the ServerQuery interface.
 
 In this case, you have the following options:
 
-* Add the IP address of the machine executing the script to the `query_ip_whitelist.txt` file in the
-  TeamSpeak 3 server's root directory to disable flood protection for that address. (**Recommended**)
-* Increase the flood protection threshold of the server instance using the ServerQuery interface.  
+* Add the IP address of the machine executing the script to the `query_ip_whitelist.txt`
+  file in the TeamSpeak 3 servers root directory to disable flood protection for
+  that address. (**Recommended**)
+* Increase the flood protection threshold of the server instance using the
+  ServerQuery interface.  
   **Example:**  
   ```
   instanceedit serverinstance_serverquery_flood_commands=200
   ```  
-  You may have to play with the values to find a suitable trade-off between convenience and security.
+  You may have to play with the values to find a suitable trade-off between
+  convenience and security.
 
-License
--------
+## 6. License
 
-See LICENSE.txt for full license details.
+See [LICENSE.txt](LICENSE.txt) for full license details.
 
 
-[0]: https://getcomposer.org/
+[1]: https://getcomposer.org/
